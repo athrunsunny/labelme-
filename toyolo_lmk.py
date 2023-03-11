@@ -132,8 +132,9 @@ def create_save_file(label_path=ROOT_DIR):
 
 
 def convert(size, box):
-    dw = 1. / (size[0])
-    dh = 1. / (size[1])
+    box = np.float64(box)
+    dw = np.float64(1. / (size[0]))
+    dh = np.float64(1. / (size[1]))
     x = (box[0] + box[1]) / 2.0 - 1
     y = (box[2] + box[3]) / 2.0 - 1
     w = box[1] - box[0]
@@ -146,8 +147,9 @@ def convert(size, box):
 
 
 def convert_lmk(size, box):
-    dw = 1. / (size[0])
-    dh = 1. / (size[1])
+    box = np.float64(box)
+    dw = np.float64(1. / (size[0]))
+    dh = np.float64(1. / (size[1]))
     box[::2] *= dw
     box[1::2] *= dh
     return box
