@@ -142,7 +142,7 @@ def convert(size, box):
     w = w * dw
     y = y * dh
     h = h * dh
-    return x, y, w, h
+    return [x, y, w, h]
 
 
 def convert_lmk(size, box):
@@ -223,6 +223,7 @@ def json2txt(classes, txt_Name='allfiles', label_path=ROOT_DIR, suffix='.jpg'):
             height, width, channels = cv2.imread(imagePath).shape
             for multi in json_file["shapes"]:
                 if multi['label'].split('_')[0] == 'head' or multi['label'].split('_')[0] == 'person':
+                    padding = [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0]
                     if len(multi["points"][0]) == 0:
                         out_file.write('')
                         continue
@@ -239,10 +240,11 @@ def json2txt(classes, txt_Name='allfiles', label_path=ROOT_DIR, suffix='.jpg'):
                     else:
                         cls_id = classes.index(label)
                         b = (float(xmin), float(xmax), float(ymin), float(ymax))
-                        bb = convert((width, height), b)
+                        bb = convert((width, height), b) + padding
                         out_file.write(str(cls_id) + " " + " ".join([str(a) for a in bb]) + '\n')
                         # print(json_filename, xmin, ymin, xmax, ymax, cls_id)
                 elif multi['label'].split('_')[0] == 'face':
+                    padding = [-1.0, -1.0, -1.0]
                     if len(multi["points"][0]) == 0:
                         out_file.write('')
                         continue
@@ -277,8 +279,8 @@ def json2txt(classes, txt_Name='allfiles', label_path=ROOT_DIR, suffix='.jpg'):
                             print(imagePath, 'bbox_lmk == 0')
                         keypoint_info = sequeen_list(keypoint_info)
                         kp = convert_lmk((width, height), keypoint_info)
-                        kp.tolist()
-                        bbox_lmk.append(kp)
+                        kp = kp.tolist()
+                        bbox_lmk.append(kp + padding)
                         for idx, item in enumerate(bbox_lmk):
                             if idx == 2:
                                 out_file.write(" ".join([str(a) for a in item]) + '\n')
