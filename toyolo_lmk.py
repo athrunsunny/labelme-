@@ -275,7 +275,15 @@ def json2txt(classes, txt_Name='allfiles', label_path=ROOT_DIR, suffix='.jpg'):
                             0] in FACE_KEYPOINT) and kpoints['label'].split('_')[-1] == keypoint_idx:
                             keypoint_info.append(kpoints)
                     if len(keypoint_info) == 0:
-                        print(imagePath)
+                        # 没有关键点时用以下padding补齐
+                        print(imagePath,'without keypoints')
+                        bbox_padding = [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0]
+                        bbox_lmk.append(bbox_padding)
+                        for idx, item in enumerate(bbox_lmk):
+                            if idx == 2:
+                                out_file.write(" ".join([str(a) for a in item]) + '\n')
+                            else:
+                                out_file.write(" ".join([str(a) for a in item]) + ' ')
                     else:
                         if len(bbox_lmk) == 0:
                             print(imagePath, 'bbox_lmk == 0')
