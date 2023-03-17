@@ -60,10 +60,10 @@ def convert(size, box):
     box = np.float64(box)
     dw = np.float64(1. / (size[0]))
     dh = np.float64(1. / (size[1]))
-    x = (box[0] + box[2]) / 2.0 - 1
-    y = (box[1] + box[3]) / 2.0 - 1
-    w = box[2] - box[0]
-    h = box[3] - box[1]
+    x = (box[0] + box[1]) / 2.0 - 1
+    y = (box[2] + box[3]) / 2.0 - 1
+    w = box[1] - box[0]
+    h = box[3] - box[2]
     x = x * dw
     w = w * dw
     y = y * dh
@@ -230,6 +230,7 @@ if __name__ == '__main__':
         img = np.float32(im0s)
 
         im_height, im_width, _ = img.shape
+        height, width, _ = img.shape
         size = (im_width,im_height)
         scale = torch.Tensor([img.shape[1], img.shape[0], img.shape[1], img.shape[0]])
         img -= (104, 117, 123)
@@ -299,16 +300,56 @@ if __name__ == '__main__':
                 if b[4] < args.vis_thres:
                     continue
                 text = "{:.4f}".format(b[4])
-                padding = [-1.0, -1.0, -1.0]
-                b = np.array(b)
+                # new_b = [b[0], b[2],b[1], b[3]]
+                # padding = [-1.0, -1.0, -1.0]
+                # b = b.tolist()
+                # new_b = new_b + b[5:]
+                # b = np.array(new_b)
+                #
+                # b[0:4] = convert(size, b[0:4])
+                # b[4:] = convert_lmk(size, b[4:])
 
-                b[0:4] = convert(size, b[0:4])
-                b[5:] = convert_lmk(size, b[ 5:])
                 b = b.tolist()
                 b.pop(4)
-                b += padding
-                b = [0] + b
-                out_file.write(" ".join([str(p) for idx,p in enumerate(b) if idx != 4]) + '\n')
+                # b += padding
+                # b = [0] + b
+                b = np.array(b)
+                annotation = np.zeros((1, 14))
+
+                padding = [-1.0, -1.0, -1.0]
+                label = b
+
+                # bbox
+                # 数据格式为x1y1x2y2
+                label[0] = max(0, label[0])
+                label[1] = max(0, label[1])
+                label[2] = label[2] - label[0]
+                label[3] = label[3] - label[1]
+
+                label[2] = min(width - 1, label[2])
+                label[3] = min(height - 1, label[3])
+                annotation[0, 0] = (label[0] + label[2] / 2) / width  # cx
+                annotation[0, 1] = (label[1] + label[3] / 2) / height  # cy
+                annotation[0, 2] = label[2] / width  # w
+                annotation[0, 3] = label[3] / height  # h
+
+                # landmarks
+                annotation[0, 4] = label[4] / width  # l0_x
+                annotation[0, 5] = label[5] / height  # l0_y
+                annotation[0, 6] = label[6] / width  # l1_x
+                annotation[0, 7] = label[7] / height  # l1_y
+                annotation[0, 8] = label[8] / width  # l2_x
+                annotation[0, 9] = label[9] / height  # l2_y
+                annotation[0, 10] = label[10] / width  # l3_x
+                annotation[0, 11] = label[11] / height  # l3_y
+                annotation[0, 12] = label[12] / width  # l4_x
+                annotation[0, 13] = label[13] / height  # l4_y
+
+                annotation = annotation.tolist()
+                annotation = [2] + annotation[0] + padding
+
+                b = annotation
+                out_file.write(" ".join([str(p) for idx,p in enumerate(b)]) + '\n')
                 b = list(map(int, b))
                 cv2.rectangle(im0s, (b[0], b[1]), (b[2], b[3]), (0, 0, 255), 1)
                 cx = b[0]
