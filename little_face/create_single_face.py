@@ -17,11 +17,14 @@ import shutil
 import yaml
 from tqdm import tqdm
 import PIL.Image
+import torch.nn.functional as F
+import torch
 
 ROOT_DIR = os.getcwd()
 VERSION = '5.0.1'  # 根据labelme的版本来修改
 
-FACE_KEYPOINT = ['left_eye','right_eye','nose','left_mouth','right_mouth']
+FACE_KEYPOINT = ['left_eye', 'right_eye', 'nose', 'left_mouth', 'right_mouth']
+
 
 def img_arr_to_b64(img_arr):
     img_pil = PIL.Image.fromarray(img_arr)
@@ -37,7 +40,7 @@ def img_arr_to_b64(img_arr):
 
 def process_point(points, cls):
     info = list()
-    for idx,point in enumerate(points):
+    for idx, point in enumerate(points):
         shape_info = dict()
         if cls[int(point[0])] == 'face':
             if point is None:
@@ -57,7 +60,7 @@ def process_point(points, cls):
                 keypoint_info = dict()
                 new_point = point[5:]
                 keypoint_info['label'] = FACE_KEYPOINT[i] + '_' + str(idx)
-                keypoint_info['points'] = [[new_point[i*2], new_point[i*2 + 1]]]
+                keypoint_info['points'] = [[new_point[i * 2], new_point[i * 2 + 1]]]
                 keypoint_info['group_id'] = None
                 keypoint_info['shape_type'] = 'point'
                 keypoint_info['flags'] = dict()
@@ -140,6 +143,7 @@ def reconvert_np(size, box):
     box[:, 3:4] = ((y + 1) * 2 + h) / 2.
     return box
 
+
 def reconvert_np_lmk(size, box):
     dw = 1. / (size[0])
     dh = 1. / (size[1])
@@ -156,7 +160,7 @@ def reconvert_np_lmk(size, box):
     return box
 
 
-def txt2json(proctype, cls, path=ROOT_DIR):
+def txt2json(proctype, cls, path=ROOT_DIR, padsz=20):
     process_image_path = os.path.join(path, proctype, 'images')
     process_label_path = os.path.join(path, proctype, 'labels')
 
@@ -191,9 +195,17 @@ def txt2json(proctype, cls, path=ROOT_DIR):
         create_json(frame, imgname, jsonpath, info)
         shutil.copy(image_path, createfile)
 
-        def create_single_face(infos,image,name,path=ROOT_DIR,padsz=20):
+        # image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        # X = torch.tensor(image).transpose(0, 2).transpose(2, 1)
+        # print("shape:", X.shape)
+        # Ppadsz = padsz + 5
+        # dim = (Ppadsz, Ppadsz, Ppadsz, Ppadsz)  # left,right,top ,down
+        # X = F.pad(X, dim, "constant", value=114).transpose(2, 1).transpose(0, 2)
+        # frame = X.data.numpy()
+
+        def create_single_face(infos, image, name, path=ROOT_DIR, padsz=20):
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            single_face_save_path = os.path.join(path,'single_face')
+            single_face_save_path = os.path.join(path, 'single_face')
             if not os.path.exists(single_face_save_path):
                 os.makedirs(single_face_save_path)
 
@@ -205,12 +217,22 @@ def txt2json(proctype, cls, path=ROOT_DIR):
                     continue
                 face_area_name = info['label']
                 area = info['points']
-                x1,y1 = area[0]
-                x2,y2 = area[1]
-                x1-=padsz
-                y1-=padsz
-                x2+=padsz
-                y2+=padsz
+                x1, y1 = area[0]
+                x2, y2 = area[1]
+                x1 -= padsz
+                y1 -= padsz
+                x2 += padsz
+                y2 += padsz
+
+                x1pad=y1pad=x2pad=y2pad =0
+                if x1 < 0:
+                    x1pad = int(abs(x1))
+                if y1 < 0:
+                    y1pad = int(abs(y1))
+                if x2 > width - 1 :
+                    x2pad = int(x2 - width)
+                if y2 > height -1 :
+                    y2pad = int(y2 - height)
 
                 x1 = x1 if x1 > 0 else 0
                 y1 = y1 if y1 > 0 else 0
@@ -219,15 +241,16 @@ def txt2json(proctype, cls, path=ROOT_DIR):
 
                 tmp_img = image[int(y1):int(y2), int(x1):int(x2), :]
 
+                X = torch.tensor(tmp_img).transpose(0, 2).transpose(2, 1)
+                dim = (x1pad, x2pad, y1pad, y2pad)  # left,right,top ,down
+                X = F.pad(X, dim, "constant", value=114).transpose(2, 1).transpose(0, 2)
+                tmp_img = X.data.numpy()
+
                 image_name = name + '.' + face_area_name + '.jpg'
-                save_path = os.path.join(single_face_save_path,image_name)
-                cv2.imwrite(save_path,tmp_img)
+                save_path = os.path.join(single_face_save_path, image_name)
+                cv2.imwrite(save_path, tmp_img)
 
-
-        create_single_face(info,frame,imgname)
-
-
-
+        create_single_face(info, frame, imgname)
 
 
 def yolotolabelme(path=ROOT_DIR):
