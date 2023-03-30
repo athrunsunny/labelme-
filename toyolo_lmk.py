@@ -287,6 +287,7 @@ def json2txt(classes, txt_Name='allfiles', label_path=ROOT_DIR, suffix='.jpg'):
                     else:
                         if len(bbox_lmk) == 0:
                             print(imagePath, 'bbox_lmk == 0')
+                            continue
                         keypoint_info = sequeen_list(keypoint_info)
                         kp = convert_lmk((width, height), keypoint_info)
                         kp = kp.tolist()
