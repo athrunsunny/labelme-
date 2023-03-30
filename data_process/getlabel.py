@@ -98,6 +98,9 @@ def read_oir_face_lmk(image_name):
             padding = [-1.0, -1.0, -1.0]
             line = line.split(' ')
             label = [float(x) for x in line if x != '']
+            if label[1] < 0 or label[2] < 0 or label[3] <= 0 or label[4] <= 0:
+                print(image_name,label)
+                continue
             label[0] = int(label[0] + 2)
             face_label.append(label + padding)
     read_time = 0
