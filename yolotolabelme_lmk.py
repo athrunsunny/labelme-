@@ -83,9 +83,10 @@ def create_json(img, imagePath, filename, info):
     data['version'] = VERSION
     data['flags'] = dict()
     data['shapes'] = info
-    data['imagePath'] = imagePath
+    data['imagePath'] = imagePath + '.jpg'
     height, width = img.shape[:2]
-    data['imageData'] = img_arr_to_b64(img).decode('utf-8')
+    # data['imageData'] = img_arr_to_b64(img).decode('utf-8')
+    data['imageData'] = None
     data['imageHeight'] = height
     data['imageWidth'] = width
     jsondata = json.dumps(data, indent=4, separators=(',', ': '))
