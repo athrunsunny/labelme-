@@ -39,6 +39,15 @@ def process_point(points, cls):
     info = list()
     for idx,point in enumerate(points):
         shape_info = dict()
+        if point is None:
+            shape_info['label'] = ''
+            shape_info['points'] = [[], []]
+            shape_info['group_id'] = None
+            shape_info['shape_type'] = 'rectangle'
+            shape_info['flags'] = dict()
+            info.append(shape_info)
+            continue
+
         if cls[int(point[0])] == 'face':
             if point is None:
                 shape_info['label'] = ''
