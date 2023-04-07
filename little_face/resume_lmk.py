@@ -69,15 +69,15 @@ def resume(path=ROOT_DIR, padsz=20):
 
                 lmk_points = [[] for _ in range(5)]
                 for idx, faceitem in enumerate(faceshapes):
-                    if faceitem['label'] == FACE_KEYPOINT[0]:
+                    if faceitem['label'] == FACE_KEYPOINT[0] or faceitem['label'].split('_')[0] == FACE_KEYPOINT[0] or '_'.join(faceitem['label'].split('_')[:-1]) == FACE_KEYPOINT[0]:
                         lmk_points[0] = faceitem['points']
-                    if faceitem['label'] == FACE_KEYPOINT[1]:
+                    if faceitem['label'] == FACE_KEYPOINT[1] or faceitem['label'].split('_')[0] == FACE_KEYPOINT[1] or '_'.join(faceitem['label'].split('_')[:-1]) == FACE_KEYPOINT[1]:
                         lmk_points[1] = faceitem['points']
-                    if faceitem['label'] == FACE_KEYPOINT[2]:
+                    if faceitem['label'] == FACE_KEYPOINT[2] or faceitem['label'].split('_')[0] == FACE_KEYPOINT[2] or '_'.join(faceitem['label'].split('_')[:-1]) == FACE_KEYPOINT[2]:
                         lmk_points[2] = faceitem['points']
-                    if faceitem['label'] == FACE_KEYPOINT[3]:
+                    if faceitem['label'] == FACE_KEYPOINT[3] or faceitem['label'].split('_')[0] == FACE_KEYPOINT[3] or '_'.join(faceitem['label'].split('_')[:-1]) == FACE_KEYPOINT[3]:
                         lmk_points[3] = faceitem['points']
-                    if faceitem['label'] == FACE_KEYPOINT[4]:
+                    if faceitem['label'] == FACE_KEYPOINT[4] or faceitem['label'].split('_')[0] == FACE_KEYPOINT[4] or '_'.join(faceitem['label'].split('_')[:-1]) == FACE_KEYPOINT[4]:
                         lmk_points[4] = faceitem['points']
                 lmk_points_np = np.array(lmk_points).reshape([1, 10])[0] - padsz
 
