@@ -231,7 +231,7 @@ def txt2json(proctype, cls, path=ROOT_DIR, padsz=20):
                     y1pad = int(abs(y1))
                 if x2 > width - 1 :
                     x2pad = int(x2 - width)
-                if y2 > height -1 :
+                if y2 > height - 1 :
                     y2pad = int(y2 - height)
 
                 x1 = x1 if x1 > 0 else 0
@@ -246,11 +246,46 @@ def txt2json(proctype, cls, path=ROOT_DIR, padsz=20):
                 X = F.pad(X, dim, "constant", value=114).transpose(2, 1).transpose(0, 2)
                 tmp_img = X.data.numpy()
 
+                def get_points_info(info,name,padsz=20):
+                    point_info = []
+                    idx = name.split('_')[-1]
+
+                    def points_shift(info, x1, y1):
+                        new_point = info
+                        point = info['points'][0]
+                        for i in range(len(point)):
+                            if point[i] < 0:
+                                continue
+                            if i % 2 == 0:
+                                point[i] = point[i] - x1
+                            else:
+                                point[i] = point[i] - y1
+
+                        new_point['points'] = [point]
+                        return new_point
+
+                    for item in info:
+                        if item['label'] == '_'.join([FACE_KEYPOINT[0],idx]):
+                            point_info.append(points_shift(item,x1, y1))
+                        if item['label'] == '_'.join([FACE_KEYPOINT[1],idx]):
+                            point_info.append(points_shift(item,x1, y1))
+                        if item['label'] == '_'.join([FACE_KEYPOINT[2],idx]):
+                            point_info.append(points_shift(item,x1, y1))
+                        if item['label'] == '_'.join([FACE_KEYPOINT[3],idx]):
+                            point_info.append(points_shift(item,x1, y1))
+                        if item['label'] == '_'.join([FACE_KEYPOINT[4],idx]):
+                            point_info.append(points_shift(item,x1, y1))
+                    return point_info
+                point_info = get_points_info(infos,face_area_name,padsz=padsz)
+
+
                 image_name = name + '.' + face_area_name + '.jpg'
+                json_path_part = os.path.join(single_face_save_path, name + '.' + face_area_name + '.json')
                 save_path = os.path.join(single_face_save_path, image_name)
                 cv2.imwrite(save_path, tmp_img)
+                create_json(tmp_img, name + '.' + face_area_name, json_path_part, point_info)
 
-        create_single_face(info, frame, imgname)
+        create_single_face(info, frame, imgname,padsz=padsz)
 
 
 def yolotolabelme(path=ROOT_DIR):
