@@ -1,4 +1,5 @@
-1、先用filter_condition.py过滤固定大小的边界框
+1、先用filter_condition.py过滤固定大小的边界框，比如推算后，在某像素范围内的图像可能学习不到特征，将其过滤
+
 2、过滤后的文件转换为yolo格式
 3、用create_single_face.py将yolo格式的数据截取小块的人脸
 4、用resume_lmk.py将小块的人脸标注转回原图
