@@ -42,6 +42,15 @@ def process_point(points, cls):
     info = list()
     for idx, point in enumerate(points):
         shape_info = dict()
+        if point is None:
+            shape_info['label'] = ''
+            shape_info['points'] = [[], []]
+            shape_info['group_id'] = None
+            shape_info['shape_type'] = 'rectangle'
+            shape_info['flags'] = dict()
+            info.append(shape_info)
+            continue
+
         if cls[int(point[0])] == 'face':
             if point is None:
                 shape_info['label'] = ''
@@ -160,7 +169,7 @@ def reconvert_np_lmk(size, box):
     return box
 
 
-def txt2json(proctype, cls, path=ROOT_DIR, padsz=20):
+def txt2json(proctype, cls, path=ROOT_DIR, padsz=5):
     process_image_path = os.path.join(path, proctype, 'images')
     process_label_path = os.path.join(path, proctype, 'labels')
 
