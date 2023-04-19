@@ -288,15 +288,16 @@ def json2txt(classes, txt_Name='allfiles', label_path=ROOT_DIR, suffix='.jpg'):
                         if len(bbox_lmk) == 0:
                             print(imagePath, 'bbox_lmk == 0')
                             continue
-                        keypoint_info = sequeen_list(keypoint_info)
-                        kp = convert_lmk((width, height), keypoint_info)
-                        kp = kp.tolist()
-                        bbox_lmk.append(kp + padding)
-                        for idx, item in enumerate(bbox_lmk):
-                            if idx == 2:
-                                out_file.write(" ".join([str(a) for a in item]) + '\n')
-                            else:
-                                out_file.write(" ".join([str(a) for a in item]) + ' ')
+                        # keypoint_info = sequeen_list(keypoint_info)
+                        # kp = convert_lmk((width, height), keypoint_info)
+                        # kp = kp.tolist()
+                        # bbox_lmk.append(kp + padding)
+                        # for idx, item in enumerate(bbox_lmk):
+                        #     if idx == 2:
+                        #         out_file.write(" ".join([str(a) for a in item]) + '\n')
+                        #     else:
+                        #         out_file.write(" ".join([str(a) for a in item]) + ' ')
+
         if not os.path.exists(os.path.join(store_json, json_file_ + '.json')):
             try:
                 shutil.move(json_filename, store_json)
