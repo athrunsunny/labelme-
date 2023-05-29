@@ -252,6 +252,7 @@ if __name__ == '__main__':
                 continue
             lmks = b[5:15]
             landmark_points.append(lmks)
+        dets = dets[dets[:, 4] > 0.6]
         if dets.shape[0] > 1:
             continue
         if dets.shape[0] > 1:
