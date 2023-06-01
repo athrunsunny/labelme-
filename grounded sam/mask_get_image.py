@@ -1,9 +1,9 @@
 import os
+
 import cv2
 import numpy as np
 from glob import glob
 from tqdm import tqdm
-
 
 def get_part_image(mask_path, mask_pair_path, out_path):
     os.makedirs(out_path,exist_ok=True)
@@ -30,6 +30,7 @@ def get_part_image(mask_path, mask_pair_path, out_path):
             mask_name = mask.replace("\\", "/").split("/")[-1]
             if mask_name[:len(real_name)] == real_name:
                 output_dir = os.path.join(out_path, mask_name)
+                output_dir = '.'.join(output_dir.split('.')[:-1]) + '.png'
                 raw_image = cv2.imread(img)
                 mask_image = cv2.imread(mask, cv2.IMREAD_GRAYSCALE)
 
@@ -41,7 +42,7 @@ def get_part_image(mask_path, mask_pair_path, out_path):
                 x2 = np.max(rows)
                 y1 = np.min(cols)
                 y2 = np.max(cols)
-
+                scenic_mask = ~mask_image
                 mask_image = mask_image / 255.0
                 raw_image[:, :, 0] = raw_image[:, :, 0] * mask_image
                 raw_image[:, :, 1] = raw_image[:, :, 1] * mask_image
