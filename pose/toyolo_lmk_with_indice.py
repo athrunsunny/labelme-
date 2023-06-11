@@ -226,7 +226,7 @@ def json2txt(classes, txt_Name='allfiles', label_path=ROOT_DIR, suffix='.jpg'):
             height, width, channels = cv2.imread(imagePath).shape
             for multi in json_file["shapes"]:
                 if multi['label'].split('_')[0] == 'head' or multi['label'].split('_')[0] == 'person':
-                    padding = [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0]
+                    padding = [-1.0,-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0]
                     if len(multi["points"][0]) == 0:
                         out_file.write('')
                         continue
@@ -340,10 +340,10 @@ def ChangeToYolo5(label_path=ROOT_DIR, suffix='.jpg', test_size=0.1, isUseTest=F
     json2txt(classes,label_path=label_path)
     create_yaml(classes, label_path, isUseTest=isUseTest)
     train_image, train_label, val_image, val_label, test_image, test_label = create_save_file(label_path)
-    push_into_file(train_files, train_image, train_label, suffix=suffix)
-    push_into_file(val_files, val_image, val_label, suffix=suffix)
+    push_into_file(train_files, train_image, train_label, suffix=suffix,label_path=label_path)
+    push_into_file(val_files, val_image, val_label, suffix=suffix,label_path=label_path)
     if test_file is not None:
-        push_into_file(test_file, test_image, test_label, suffix=suffix)
+        push_into_file(test_file, test_image, test_label, suffix=suffix,label_path=label_path)
     print('create dataset done')
 
 
