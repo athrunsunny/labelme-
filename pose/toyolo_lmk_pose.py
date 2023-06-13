@@ -200,7 +200,7 @@ def push_into_file(file, images, labels, label_path=ROOT_DIR, suffix='.jpg'):
 def change2reg(label):
     # pitch,yaw,roll = label[:,:1],label[:,1:2],label[:,2:3]
     label[:1] = label[:1] * np.pi / 180
-    label[1:2] = -(label[1:2] * np.pi / 180)
+    label[1:2] = label[1:2] * np.pi / 180
     label[2:3] = label[2:3] * np.pi / 180
     return label
 def json2txt(classes, txt_Name='allfiles', label_path=ROOT_DIR, suffix='.jpg',pose_label=ROOT_DIR):
